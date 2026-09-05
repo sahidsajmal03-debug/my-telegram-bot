@@ -4,11 +4,12 @@ from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters, ContextTypes
 from groq import Groq
 
-# Logging সেটআপ
+# Logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 
-TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "8822026636:AAF8eCJbYCvU1T79HuVh_Ioxnf2rbRicq0M")
-GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "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")
+# Render Environment Variables থেকে নিরাপদে Key সংগ্রহ করা হচ্ছে
+TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
+GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
 
 client = Groq(api_key=GROQ_API_KEY)
 
@@ -37,5 +38,5 @@ if __name__ == '__main__':
     app.add_handler(CommandHandler("start", start))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
     
-    print("Groq Bot is running...")
+    print("Groq Bot is running securely on Render...")
     app.run_polling()
