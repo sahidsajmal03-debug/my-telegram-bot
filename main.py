@@ -9,7 +9,7 @@ from groq import Groq
 # Logging সেটআপ
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 
-# Render Environment Variables থেকে টোকেন ও Key সংগৃহীত হচ্ছে
+# Render Environment Variables থেকে টোকেন ও Key সংগ্রহ
 TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
 GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
 
@@ -36,7 +36,7 @@ def run_dummy_server():
 
 # /start কমান্ড হ্যান্ডলার
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("Hello! Ami apnar AI assistant. Amake jekono proshno korte paren.")
+    await update.message.reply_text("Hello! Ami apnar AI assistant. Amake jekono bhashay proshno korte paren.")
 
 # মেসেজ প্রসেস এবং Groq AI থেকে উত্তর সংগ্রহ করার ফাংশন
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -78,7 +78,13 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             messages=[
                 {
                     "role": "system", 
-                    "content": "You are a helpful assistant. Always respond in Bengali language written using English script/letters (Banglish/Bangla in English alphabet). Do not use Bengali script. Example: 'Ami apnake shahajjo korte pari'."
+                    "content": (
+                        "You are a helpful assistant. Reply in the SAME LANGUAGE as the user's input/question. "
+                        "CRITICAL RULE: Always write your output using ONLY English letters (Latin/Roman script). "
+                        "Never use native non-English scripts like Bangla, Hindi, Arabic, Japanese, Chinese, Cyrillic, etc. "
+                        "For example, if asked in Bangla, reply in Bangla transliterated into English script (Banglish). "
+                        "If asked in English, reply in standard English."
+                    )
                 },
                 {"role": "user", "content": prompt_text if prompt_text else user_text}
             ]
