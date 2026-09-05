@@ -1,29 +1,36 @@
 import os
+import logging
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters, ContextTypes
-from openai import OpenAI
+from groq import Groq
 
-# Telegram Bot Token এবং আপডেট করা নতুন OpenAI API Key
-TELEGRAM_BOT_TOKEN = "8644242747:AAFINNnjOK3WgxmVxouC5dx92GSf2jGXx0I"
-OPENAI_API_KEY = os.environ.get(
-    "OPENAI_API_KEY", 
-    "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"
-)
+# Logging সেটআপ
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 
-# OpenAI Client সেটআপ
-client = OpenAI(api_key=OPENAI_API_KEY)
+
+# "8822026636:AAF8eCJbYCvU1T79HuVh_Ioxnf2rbRicq0M"
+ ==============================================================================
+TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "8822026636:AAF8eCJbYCvU1T79HuVh_Ioxnf2rbRicq0M")
+
+# ==============================================================================
+# "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"
+# ==============================================================================
+GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "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")
+
+# Groq Client ইনিশিয়ালাইজেশন
+client = Groq(api_key=GROQ_API_KEY)
 
 # /start কমান্ড
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("হ্যালো! আমি আপনার AI অ্যাসিস্ট্যান্ট। আমাকে যেকোনো প্রশ্ন করতে পারেন।")
+    await update.message.reply_text("হ্যালো! আমি Groq AI দ্বারা চালিত আপনার অ্যাসিস্ট্যান্ট। আমাকে যেকোনো প্রশ্ন করতে পারেন।")
 
-# মেসেজ প্রসেস এবং উত্তর দেওয়ার ফাংশন
+# মেসেজ হ্যান্ডলার
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_text = update.message.text
 
     try:
         response = client.chat.completions.create(
-            model="gpt-4o-mini",
+            model="llama-3.3-70b-versatile",
             messages=[
                 {"role": "system", "content": "You are a helpful assistant."},
                 {"role": "user", "content": user_text}
@@ -40,5 +47,5 @@ if __name__ == '__main__':
     app.add_handler(CommandHandler("start", start))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
     
-    print("Bot is running...")
+    print("Groq Bot is running...")
     app.run_polling()
