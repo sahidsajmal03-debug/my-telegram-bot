@@ -7,7 +7,7 @@ from openai import OpenAI
 TELEGRAM_BOT_TOKEN = "8644242747:AAFINNnjOK3WgxmVxouC5dx92GSf2jGXx0I"
 OPENAI_API_KEY = os.environ.get(
     "OPENAI_API_KEY", 
-    "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"
+    "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"
 )
 
 # OpenAI Client সেটআপ
