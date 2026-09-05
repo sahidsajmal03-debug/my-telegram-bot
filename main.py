@@ -9,7 +9,7 @@ from groq import Groq
 # Logging সেটআপ
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 
-# Render Environment Variables থেকে টোকেন ও API Key সংগ্রহ
+# Render Environment Variables থেকে টোকেন সংগ্রহ
 TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
 GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
 
@@ -17,7 +17,7 @@ GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
 client = Groq(api_key=GROQ_API_KEY)
 
 # ==============================================================================
-# Render Web Service Port Scan Timeout সমাধানের জন্য ফেক/ডামি ওয়েবাসার্ভার
+# Render Web Service Port Scan Timeout সমাধানের জন্য ডামি সার্ভার
 # ==============================================================================
 class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
     def do_GET(self):
@@ -34,17 +34,15 @@ def run_dummy_server():
 # Telegram Bot Handlers
 # ==============================================================================
 
-# /start কমান্ড হ্যান্ডলার
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("হ্যালো! আমি Groq AI দ্বারা চালিত আপনার অ্যাসিস্ট্যান্ট। আমাকে যেকোনো প্রশ্ন করতে পারেন।")
 
-# মেসেজ প্রসেস এবং Groq AI থেকে উত্তর সংগ্রহ করার ফাংশন
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_text = update.message.text
 
     try:
         response = client.chat.completions.create(
-            model="llama-3.3-70b-versatile",  # Groq-এর বর্তমানে চালু ও আপডেটেড মডেল
+            model="llama-3.1-8b-instant",  # Groq-এর বর্তমান দ্রুত ও সক্রিয় মডেল
             messages=[
                 {"role": "system", "content": "You are a helpful assistant."},
                 {"role": "user", "content": user_text}
@@ -59,7 +57,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 # Main Execution
 # ==============================================================================
 if __name__ == '__main__':
-    # ব্যাকগ্রাউন্ড থ্রেডে ডামি সার্ভার চালু করা (যা Render-এর পোর্ট এরর আটকাবে)
+    # ব্যাকগ্রাউন্ড থ্রেডে ডামি সার্ভার চালু করা
     threading.Thread(target=run_dummy_server, daemon=True).start()
     
     # টেলিগ্রাম বট অ্যাপ সেটআপ
