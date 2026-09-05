@@ -36,7 +36,7 @@ def run_dummy_server():
 
 # /start কমান্ড হ্যান্ডলার
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("Hello! Ami apnar AI assistant. Short reply-er jonno shadharon proshno korun, aar vistarito uttorer jonno /all likhe proshno korun.")
+    await update.message.reply_text("Hello! Ami apnar AI assistant. Shadharon uttor maximum 120 words-er hobe, aar /all likhle pura vistarito uttor paben.")
 
 # মেসেজ প্রসেস এবং Groq AI থেকে উত্তর সংগ্রহ করার ফাংশন
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -75,16 +75,16 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # /all ফ্ল্যাগ চেক করা
     has_all_flag = "/all" in prompt_text.lower()
     
-    # প্রম্পট থেকে /all লেখাটি মুছে নেওয়া যাতে এআই কনফিউজড না হয়
+    # প্রম্পট থেকে /all নির্দেশক মুছে ফেলা
     clean_prompt = prompt_text.replace("/all", "").replace("/ALL", "").strip()
     if not clean_prompt:
         clean_prompt = prompt_text
 
-    # /all থাকলে কোনো অক্ষরের সীমাবদ্ধতা থাকবে না, অন্যথায় ৫০ অক্ষরের সীমা থাকবে
+    # /all থাকলে শব্দের সীমার তুলে দেওয়া হবে, অন্যথায় সর্বোচ্চ ১২০ শব্দের মধ্যে থাকবে
     if has_all_flag:
-        length_instruction = "Give a detailed and complete answer. No strict character length limit."
+        length_instruction = "Give a detailed and complete answer without word limit restrictions."
     else:
-        length_instruction = "CRITICAL LIMIT: Keep your ENTIRE reply under 50 characters in total (including spaces). Be extremely brief and concise."
+        length_instruction = "CRITICAL LIMIT: Keep your response STRICTLY UNDER 120 WORDS. Be clear and concise."
 
     system_prompt = (
         "You are a helpful assistant. Reply in the SAME LANGUAGE as the user's input/question. "
@@ -103,9 +103,11 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
         bot_reply = response.choices[0].message.content
 
-        # অতিরিক্ত সুরক্ষার জন্য: /all না থাকলে পাইথন থেকেও ৫০ অক্ষরে কেটে দেওয়া
-        if not has_all_flag and len(bot_reply) > 50:
-            bot_reply = bot_reply[:50].strip()
+        # /all না থাকলে বাড়তি সুরক্ষার জন্য ১২০ শব্দে ট্রাঙ্কেট/কাট করার চেষ্টা
+        if not has_all_flag:
+            words = bot_reply.split()
+            if len(words) > 120:
+                bot_reply = " ".join(words[:120]) + "..."
 
         await update.message.reply_text(bot_reply)
     except Exception as e:
