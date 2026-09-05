@@ -9,20 +9,15 @@ from groq import Groq
 # Logging সেটআপ
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 
-# Render Environment Variables থেকে টোকেন সংগ্রহ
+# Render Environment Variables থেকে টোকেন ও Key সংগৃহীত হচ্ছে
 TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
 GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
-
-# ==============================================================================
-# এখানে আপনার টেলিগ্রাম বটের User Name বসান (যেমন: "@your_bot_username")
-# ==============================================================================
-BOT_USERNAME = "@your_bot_username"  # <-- এখানে আপনার বটের Username বসাবেন
 
 # Groq Client ইনিশিয়ালাইজেশন
 client = Groq(api_key=GROQ_API_KEY)
 
 # ==============================================================================
-# Render Web Service Port Scan Timeout সমাধানের জন্য ডামি সার্ভার
+# Render-এর Web Service Port Scan Timeout সমাধানের জন্য ফেক/ডামি ওয়েবাসার্ভার
 # ==============================================================================
 class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
     def do_GET(self):
@@ -39,9 +34,11 @@ def run_dummy_server():
 # Telegram Bot Handlers
 # ==============================================================================
 
+# /start কমান্ড হ্যান্ডলার
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("হ্যালো! আমি Groq AI দ্বারা চালিত আপনার অ্যাসিস্ট্যান্ট। আমাকে গ্রুপে ট্যাগে/রিপ্লাইতে বা প্রাইভেটে যেকোনো প্রশ্ন করতে পারেন।")
+    await update.message.reply_text("Hello! Ami apnar AI assistant. Amake jekono proshno korte paren.")
 
+# মেসেজ প্রসেস এবং Groq AI থেকে উত্তর সংগ্রহ করার ফাংশন
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not update.message or not update.message.text:
         return
@@ -50,32 +47,28 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_text = update.message.text
     bot_info = await context.bot.get_me()
     bot_id = bot_info.id
-    bot_username = f"@{bot_info.username}" if bot_info.username else BOT_USERNAME
+    bot_username = f"@{bot_info.username}" if bot_info.username else ""
 
-    # ১. প্রাইভেট চ্যাটে (Direct Message) সব মেসেজের উত্তর দেবে
+    # ১. প্রাইভেট চ্যাটে সরাসরি উত্তর দেবে
     if chat_type == "private":
         should_respond = True
         prompt_text = user_text
     else:
-        # ২. গ্রুপ বা সুপারগ্রুপ চ্যাট হলে শর্ত চেক করা হবে:
-        is_mentioned = bot_username.lower() in user_text.lower()
+        # ২. গ্রুপ বা সুপারগ্রুপে কেবল ম্যানশন বা রিপ্লাই দিলে উত্তর দেবে
+        is_mentioned = bot_username.lower() in user_text.lower() if bot_username else False
         
-        # মেসেজটি বটের কোনো আগের মেসেজের রিপ্লাই কি না চেক
         is_reply_to_bot = (
             update.message.reply_to_message is not None and
             update.message.reply_to_message.from_user is not None and
             update.message.reply_to_message.from_user.id == bot_id
         )
 
-        # কেবল ম্যানশন করা হলে বা বটের মেসেজে রিপ্লাই দিলেই রেসপন্স করবে
         if is_mentioned or is_reply_to_bot:
             should_respond = True
-            # প্রম্পট থেকে বটের ইউজারনেম ফিল্টার করে নেওয়া
-            prompt_text = user_text.replace(bot_username, "").strip()
+            prompt_text = user_text.replace(bot_username, "").strip() if bot_username else user_text
         else:
             should_respond = False
 
-    # শর্ত না মিললে কোনো রেসপন্স করবে না
     if not should_respond:
         return
 
@@ -83,14 +76,17 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         response = client.chat.completions.create(
             model="openai/gpt-oss-120b",
             messages=[
-                {"role": "system", "content": "You are a helpful assistant."},
+                {
+                    "role": "system", 
+                    "content": "You are a helpful assistant. Always respond in Bengali language written using English script/letters (Banglish/Bangla in English alphabet). Do not use Bengali script. Example: 'Ami apnake shahajjo korte pari'."
+                },
                 {"role": "user", "content": prompt_text if prompt_text else user_text}
             ]
         )
         bot_reply = response.choices[0].message.content
         await update.message.reply_text(bot_reply)
     except Exception as e:
-        await update.message.reply_text(f"একটি ত্রুটি ঘটেছে: {str(e)}")
+        await update.message.reply_text(f"Ekta error hoyeche: {str(e)}")
 
 # ==============================================================================
 # Main Execution
