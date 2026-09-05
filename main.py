@@ -3,8 +3,8 @@ from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters, ContextTypes
 from openai import OpenAI
 
-# Telegram Bot Token এবং OpenAI API Key
-TELEGRAM_BOT_TOKEN = "8883466823:AAFFOHQvAErXIDA2A3foyvrvgLvnUOdT1d4"
+# নতুন Telegram Bot Token এবং OpenAI API Key
+TELEGRAM_BOT_TOKEN = "8644242747:AAFINNnjOK3WgxmVxouC5dx92GSf2jGXx0I"
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "Sk-proj-TWfWUZ0cAaV5WZkKL2k_BignTPYRJDYbjXY11WLqhbX38koNkwySdhzDxDMiJvntIAHi2jCeUcT3BlbkFJp8kfpVuVQmjETBuEsUJiQcEkU_idyoFCLdJhSylTi11jS4J22AsDbxfGd6snovBoc0AsERDHYA")
 
 # OpenAI Client সেটআপ
