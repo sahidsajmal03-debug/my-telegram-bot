@@ -42,7 +42,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     try:
         response = client.chat.completions.create(
-            model="llama-3.1-8b-instant",  # Groq-এর বর্তমান দ্রুত ও সক্রিয় মডেল
+            model="openai/gpt-oss-120b",  # Groq-এর বর্তমানে একটিভ ও দ্রুত মডেল
             messages=[
                 {"role": "system", "content": "You are a helpful assistant."},
                 {"role": "user", "content": user_text}
@@ -57,7 +57,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 # Main Execution
 # ==============================================================================
 if __name__ == '__main__':
-    # ব্যাকগ্রাউন্ড থ্রেডে ডামি সার্ভার চালু করা
+    # ব্যাকগ্রাউন্ড থ্রেডে ডামি সার্ভার চালুকরণ
     threading.Thread(target=run_dummy_server, daemon=True).start()
     
     # টেলিগ্রাম বট অ্যাপ সেটআপ
