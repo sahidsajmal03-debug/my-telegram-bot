@@ -9,7 +9,7 @@ from groq import Groq
 # Logging সেটআপ
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 
-# Render Environment Variables থেকে টোকেন ও API Key সংগ্রহ করা হচ্ছে
+# Render Environment Variables থেকে টোকেন ও API Key সংগ্রহ
 TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
 GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
 
@@ -17,7 +17,7 @@ GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
 client = Groq(api_key=GROQ_API_KEY)
 
 # ==============================================================================
-# Render-এর Web Service Port Scan Timeout সমাধানের জন্য ফেক/ডামি ওয়েবাসার্ভার
+# Render Web Service Port Scan Timeout সমাধানের জন্য ফেক/ডামি ওয়েবাসার্ভার
 # ==============================================================================
 class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
     def do_GET(self):
@@ -44,7 +44,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     try:
         response = client.chat.completions.create(
-            model="llama3-70b-8192",  # আপডেটেড ও সক্রিয় মডেল
+            model="llama-3.3-70b-versatile",  # Groq-এর বর্তমানে চালু ও আপডেটেড মডেল
             messages=[
                 {"role": "system", "content": "You are a helpful assistant."},
                 {"role": "user", "content": user_text}
